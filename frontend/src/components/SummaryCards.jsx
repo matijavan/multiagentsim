@@ -19,7 +19,7 @@ export default function SummaryCards({ results }) {
   return (
     <div className="summary-block">
       <div className="proxy-readout">
-        <span className="field-label">Triage classifier — realized accuracy</span>
+        <span className="field-label">Accuracy classifier</span>
         <div className="proxy-readout-row">
           <SignalMeter accuracy={proxyAccuracy} />
           <span className="proxy-readout-value">

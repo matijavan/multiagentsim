@@ -36,9 +36,12 @@ def simulate(config: SimulationConfig):
         raise HTTPException(status_code=400, detail=f"Nepoznata strategija: {config.strategy}")
     return run_simulation(
         strategy_key=config.strategy,
+        agents=config.agents,
         broj_tiketa=config.broj_tiketa,
+        duljina_tiketa=config.duljina_tiketa,
         seed=config.seed,
         tocnost_proxyja=config.tocnost_proxyja,
+        tip_weights=config.tip_weights,
         include_log=config.include_log,
     )
 
@@ -51,8 +54,10 @@ def compare(config: CompareConfig):
         raise HTTPException(status_code=400, detail=f"Nepoznate strategije: {nepoznate}")
     return run_compare(
         strategy_keys=strategije,
+        agents=config.agents,
         broj_tiketa=config.broj_tiketa,
         duljina_tiketa=config.duljina_tiketa,
         seed=config.seed,
         tocnost_proxyja=config.tocnost_proxyja,
+        tip_weights=config.tip_weights,
     )

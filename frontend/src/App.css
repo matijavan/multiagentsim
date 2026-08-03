@@ -98,6 +98,65 @@ input[type='range'] {
   width: 100%;
 }
 
+.agent-row {
+  display: grid;
+  grid-template-columns: 1fr 64px 24px;
+  gap: 6px;
+  align-items: center;
+}
+
+.agent-row input[type='text'] {
+  min-width: 0;
+}
+
+.agent-row input[type='number'] {
+  width: 100%;
+}
+
+.agent-row button {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--ink-muted);
+  border-radius: 6px;
+  height: 28px;
+  cursor: pointer;
+  line-height: 1;
+}
+
+.agent-row button:hover {
+  color: var(--urgent);
+  border-color: var(--urgent);
+}
+
+.add-agent-button {
+  align-self: flex-start;
+  background: transparent;
+  border: 1px dashed var(--border);
+  color: var(--ink-muted);
+  border-radius: 6px;
+  padding: 6px 10px;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.add-agent-button:hover {
+  color: var(--ink);
+  border-color: var(--accent);
+}
+
+.weight-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  font-size: 13px;
+  color: var(--ink);
+}
+
+.weight-row input[type='number'] {
+  width: 72px;
+}
+
 .run-button {
   background: var(--accent);
   color: white;

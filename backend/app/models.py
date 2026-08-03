@@ -1,5 +1,10 @@
-from typing import Optional
+from typing import Dict, List, Optional
 from pydantic import BaseModel, Field
+
+
+class AgentConfig(BaseModel):
+    name: str = Field(..., min_length=1, description="Naziv agenta - ujedno i skill/tip tiketa kojeg pokriva")
+    kapacitet: int = Field(..., ge=1)
 
 
 class SimulationConfig(BaseModel):
@@ -8,6 +13,8 @@ class SimulationConfig(BaseModel):
     duljina_tiketa: int = Field(6, ge = 3, le = 9)
     seed: int = Field(42, ge=0)
     tocnost_proxyja: float = Field(0.8, ge=0.0, le=1.0)
+    agents: List[AgentConfig] = Field(..., min_length=1)
+    tip_weights: Optional[Dict[str, float]] = None
     include_log: bool = False
 
 
@@ -17,6 +24,8 @@ class CompareConfig(BaseModel):
     duljina_tiketa: int = Field(6, ge = 3, le = 9)
     seed: int = Field(42, ge=0)
     tocnost_proxyja: float = Field(0.8, ge=0.0, le=1.0)
+    agents: List[AgentConfig] = Field(..., min_length=1)
+    tip_weights: Optional[Dict[str, float]] = None
 
 
 class TicketLogEntry(BaseModel):

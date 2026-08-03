@@ -225,13 +225,20 @@ class Scheduler:
 # 6. GENERATOR ZAHTJEVA
 # ---------------------------------------------------------
 
-def generator_zahtjeva(env: simpy.Environment, scheduler: Scheduler, broj_tiketa: int, prosjecni_razmak: float, duljina_tiketa: float):
-    tipovi = ["tehnicki", "naplata", "opci"]
+def generator_zahtjeva(
+    env: simpy.Environment,
+    scheduler: Scheduler,
+    broj_tiketa: int,
+    prosjecni_razmak: float,
+    duljina_tiketa: float,
+    tipovi: list,
+    tip_weights: list,
+):
     for i in range(broj_tiketa):
         yield env.timeout(random.expovariate(1.0 / prosjecni_razmak))  # Poisson dolasci
         ticket = Ticket(
             id=i,
-            tip=random.choice(tipovi),
+            tip=random.choices(tipovi, weights=tip_weights)[0],
             priority=random.choices(
                 list(Priority), weights=[0.4, 0.3, 0.2, 0.1]
             )[0],
@@ -241,10 +248,11 @@ def generator_zahtjeva(env: simpy.Environment, scheduler: Scheduler, broj_tiketa
         env.process(scheduler.obradi_ticket(ticket))
 
 
-def default_agenti() -> list:
-    """Svjeza lista agenata - mora se pozivati po simulaciji jer Agent nosi mutable stanje."""
+def build_agenti(agent_configs: list) -> list:
+    """Svjeza lista agenata iz korisnicke konfiguracije - mora se pozivati po
+    simulaciji jer Agent nosi mutable stanje. `skill` je namjerno isti kao
+    `name` - jedno polje u konfiguraciji odreduje i identitet i specijalizaciju."""
     return [
-        Agent(name="A1_tehnicki", kapacitet=3, skill="tehnicki"),
-        Agent(name="A2_naplata", kapacitet=2, skill="naplata"),
-        Agent(name="A3_opci", kapacitet=4, skill="opci"),
+        Agent(name=c.name, kapacitet=c.kapacitet, skill=c.name)
+        for c in agent_configs
     ]

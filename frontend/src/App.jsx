@@ -12,6 +12,12 @@ const DEFAULT_CONFIG = {
   seed: 42,
   tocnost_proxyja: 1,
   duljina_tiketa: 6,
+  agents: [
+    { name: 'tehnicki', kapacitet: 3 },
+    { name: 'naplata', kapacitet: 2 },
+    { name: 'opci', kapacitet: 4 },
+  ],
+  tip_weights: {},
 }
 
 export default function App() {
@@ -45,7 +51,7 @@ export default function App() {
   return (
     <div className="app-shell">
       <header className="app-header">
-        <h1>Multi-agent scheduler simulator</h1>
+        <h1>Multi-agent scheduling simulator</h1>
         {/* <p className="app-subtitle">
           Compare routing strategies for ticket assignment, including the effect of an imperfect
           triage classifier on where tickets end up.

@@ -6,6 +6,25 @@ export default function ConfigPanel({ strategies, config, onChange, onRun, loadi
     onChange({ ...config, strategies: selected })
   }
 
+  const updateAgent = (index, patch) => {
+    const agents = config.agents.map((a, i) => (i === index ? { ...a, ...patch } : a))
+    onChange({ ...config, agents })
+  }
+
+  const addAgent = () => {
+    onChange({ ...config, agents: [...config.agents, { name: '', kapacitet: 2 }] })
+  }
+
+  const removeAgent = (index) => {
+    onChange({ ...config, agents: config.agents.filter((_, i) => i !== index) })
+  }
+
+  const ticketTypes = [...new Set(config.agents.map((a) => a.name).filter(Boolean))]
+
+  const updateWeight = (type, value) => {
+    onChange({ ...config, tip_weights: { ...config.tip_weights, [type]: value } })
+  }
+
   return (
     <aside className="panel config-panel">
       <div className="eyebrow">Run configuration</div>
@@ -69,7 +88,7 @@ export default function ConfigPanel({ strategies, config, onChange, onRun, loadi
           value={config.tocnost_proxyja}
           onChange={(e) => onChange({ ...config, tocnost_proxyja: Number(e.target.value) })}
         />
-        <span className="field-hint">How often the general agent correctly identifies the ticket type.</span>
+        <span className="field-hint"></span>
       </div>
 
       <div className="field-group">
@@ -83,10 +102,61 @@ export default function ConfigPanel({ strategies, config, onChange, onRun, loadi
           value={config.seed}
           onChange={(e) => onChange({ ...config, seed: Number(e.target.value) })}
         />
-        <span className="field-hint">Same seed with same config = identical simulation</span>
+        <span className="field-hint"></span>
       </div>
 
-      <button className="run-button" onClick={onRun} disabled={loading || config.strategies.length === 0}>
+      <div className="field-group">
+        <span className="field-label">Agents</span>
+        {config.agents.map((agent, i) => (
+          <div className="agent-row" key={i}>
+            <input
+              type="text"
+              placeholder="name / skill"
+              value={agent.name}
+              onChange={(e) => updateAgent(i, { name: e.target.value })}
+            />
+            <input
+              type="number"
+              min={1}
+              value={agent.kapacitet}
+              onChange={(e) => updateAgent(i, { kapacitet: Number(e.target.value) })}
+            />
+            <button type="button" onClick={() => removeAgent(i)} aria-label="Remove agent">
+              ×
+            </button>
+          </div>
+        ))}
+        <button type="button" className="add-agent-button" onClick={addAgent}>
+          + Add agent
+        </button>
+        <span className="field-hint">
+        </span>
+      </div>
+
+      {ticketTypes.length > 0 && (
+        <div className="field-group">
+          <span className="field-label">Ticket type distribution</span>
+          {ticketTypes.map((type) => (
+            <label key={type} className="weight-row">
+              <span>{type}</span>
+              <input
+                type="number"
+                min={0}
+                step={0.1}
+                value={config.tip_weights?.[type] ?? 1}
+                onChange={(e) => updateWeight(type, Number(e.target.value))}
+              />
+            </label>
+          ))}
+          <span className="field-hint"></span>
+        </div>
+      )}
+
+      <button
+        className="run-button"
+        onClick={onRun}
+        disabled={loading || config.strategies.length === 0 || config.agents.length === 0}
+      >
         {loading ? 'Running…' : 'Run simulation'}
       </button>
     </aside>
