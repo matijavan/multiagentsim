@@ -1,4 +1,4 @@
-# Dispatch Sim — Ticket Routing Scheduler Comparison
+# Multi-agent scheduler simulator
 
 A small fullstack app around the `simpy`-based multi-agent ticket scheduling
 simulation: a FastAPI backend runs the simulation on demand, a React
