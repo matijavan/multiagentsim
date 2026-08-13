@@ -134,7 +134,6 @@ class ProxyAgent:
 # ---------------------------------------------------------
 
 def round_robin_strategy():
-    """Vraca funkciju koja pamti index zadnjeg koristenog agenta (closure/state)."""
     zadnji_index = [-1]
 
     def strategija(ticket: Ticket, agenti: list) -> Agent:
@@ -180,7 +179,7 @@ STRATEGY_REGISTRY = {
         "factory": lambda: skill_based_strategy,
     },
     "hybrid": {
-        "label": "Hybrid (Priority + Least Loaded)",
+        "label": "ako je urgent/high onda skill_based, inace least_loaded",
         "factory": lambda: priority_least_loaded_strategy,
     },
 }
@@ -249,9 +248,6 @@ def generator_zahtjeva(
 
 
 def build_agenti(agent_configs: list) -> list:
-    """Svjeza lista agenata iz korisnicke konfiguracije - mora se pozivati po
-    simulaciji jer Agent nosi mutable stanje. `skill` je namjerno isti kao
-    `name` - jedno polje u konfiguraciji odreduje i identitet i specijalizaciju."""
     return [
         Agent(name=c.name, kapacitet=c.kapacitet, skill=c.name)
         for c in agent_configs

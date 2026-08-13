@@ -51,7 +51,7 @@ export default function App() {
   return (
     <div className="app-shell">
       <header className="app-header">
-        <h1>Multi-agent scheduling simulator</h1>
+        {/*<h1>Multi-agent scheduling simulator</h1>*/}
         {/* <p className="app-subtitle">
           Compare routing strategies for ticket assignment, including the effect of an imperfect
           triage classifier on where tickets end up.
@@ -72,8 +72,8 @@ export default function App() {
 
           {!hasRun && !error && (
             <div className="panel empty-state">
-              <div className="eyebrow">No run yet</div>
-              <p>Pick strategies and settings on the left, then run a comparison to see results here.</p>
+              {/*<div className="eyebrow">No run yet</div>
+              <p>Pick strategies and settings on the left, then run a comparison to see results here.</p>*/}
             </div>
           )}
 
