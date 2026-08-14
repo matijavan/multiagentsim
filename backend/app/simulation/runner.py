@@ -27,6 +27,7 @@ def run_simulation(
     prosjecni_razmak: float = 0.8,
     duljina_tiketa: float = 5,
     tip_weights: dict = None,
+    proxy_kapacitet: int = 5,
 ) -> dict:
     if strategy_key not in STRATEGY_REGISTRY:
         raise ValueError(f"Nepoznata strategija: {strategy_key}")
@@ -47,7 +48,7 @@ def run_simulation(
     metrike = Metrike()
     # Zaseban seed za proxy RNG - generiranje tiketa ostaje identicno bez
     # obzira na tocnost proxyja, pa je usporedba strategija fer.
-    proxy = ProxyAgent(tocnost=tocnost_proxyja, moguci_tipovi=tipovi, seed=seed + 1000)
+    proxy = ProxyAgent(tocnost=tocnost_proxyja, moguci_tipovi=tipovi, seed=seed + 1000, kapacitet=proxy_kapacitet)
     scheduler = Scheduler(env, agenti, strategija, metrike, proxy)
 
     env.process(generator_zahtjeva(
@@ -84,6 +85,7 @@ def run_compare(
     prosjecni_razmak: float = 0.8,
     duljina_tiketa: float = 6,
     tip_weights: dict = None,
+    proxy_kapacitet: int = 5,
 ) -> list:
     """Pokrece vise strategija na ISTOM seedu (=> identicna simulacija), tako da su
     rezultati direktno usporedivi."""
@@ -97,6 +99,7 @@ def run_compare(
             tocnost_proxyja=tocnost_proxyja,
             prosjecni_razmak=prosjecni_razmak,
             tip_weights=tip_weights,
+            proxy_kapacitet=proxy_kapacitet,
         )
         for key in strategy_keys
     ]

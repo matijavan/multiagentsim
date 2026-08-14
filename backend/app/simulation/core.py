@@ -105,13 +105,18 @@ class Metrike:
 # procjene, ne stvarnog tipa. Stvarni tip i dalje odreduje koliko obrada
 # stvarno traje (vidi faktor u Scheduler.obradi_ticket).
 
+PROXY_KLASIFIKACIJA_TRAJANJE = 0.2  # fiksno trajanje jedne klasifikacije
+
+
 class ProxyAgent:
-    def __init__(self, tocnost: float = 0.8, moguci_tipovi: list = None, seed: int = None):
+    def __init__(self, tocnost: float = 0.8, moguci_tipovi: list = None, seed: int = None, kapacitet: int = 5):
         self.tocnost = tocnost
         self.moguci_tipovi = moguci_tipovi or ["tehnicki", "naplata", "opci"]
         self.rng = random.Random(seed)  # zaseban RNG - ne remeti generiranje tiketa
         self.tocne_klasifikacije = 0
         self.pogresne_klasifikacije = 0
+        self.kapacitet = kapacitet
+        self.trenutno_zauzet = 0
 
     def klasificiraj(self, ticket: Ticket) -> str:
         if self.rng.random() < self.tocnost:
@@ -198,7 +203,13 @@ class Scheduler:
         self.proxy = proxy
 
     def obradi_ticket(self, ticket: Ticket):
+        while self.proxy.trenutno_zauzet >= self.proxy.kapacitet:
+            yield self.env.timeout(0.1)
+
+        self.proxy.trenutno_zauzet += 1
+        yield self.env.timeout(PROXY_KLASIFIKACIJA_TRAJANJE)
         self.proxy.klasificiraj(ticket)
+        self.proxy.trenutno_zauzet -= 1
 
         agent = self.strategija(ticket, self.agenti)
 

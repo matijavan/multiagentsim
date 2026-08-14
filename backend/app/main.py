@@ -39,8 +39,10 @@ def simulate(config: SimulationConfig):
         agents=config.agents,
         broj_tiketa=config.broj_tiketa,
         duljina_tiketa=config.duljina_tiketa,
+        prosjecni_razmak=config.prosjecni_razmak,
         seed=config.seed,
         tocnost_proxyja=config.tocnost_proxyja,
+        proxy_kapacitet=config.proxy_kapacitet,
         tip_weights=config.tip_weights,
         include_log=config.include_log,
     )
@@ -57,7 +59,9 @@ def compare(config: CompareConfig):
         agents=config.agents,
         broj_tiketa=config.broj_tiketa,
         duljina_tiketa=config.duljina_tiketa,
+        prosjecni_razmak=config.prosjecni_razmak,
         seed=config.seed,
         tocnost_proxyja=config.tocnost_proxyja,
+        proxy_kapacitet=config.proxy_kapacitet,
         tip_weights=config.tip_weights,
     )

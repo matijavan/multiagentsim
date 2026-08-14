@@ -76,6 +76,24 @@ export default function ConfigPanel({ strategies, config, onChange, onRun, loadi
       </div>
 
       <div className="field-group">
+        <label className="field-label" htmlFor="ticket-gap">
+          Avg. time between ticket arrivals <span className="field-value">{config.prosjecni_razmak.toFixed(1)}</span>
+        </label>
+        <input
+          id="ticket-gap"
+          type="range"
+          min={0.2}
+          max={3}
+          step={0.1}
+          value={config.prosjecni_razmak}
+          onChange={(e) => onChange({ ...config, prosjecni_razmak: Number(e.target.value) })}
+        />
+        <span className="field-hint">
+          Lower = tickets spawn more often (~{(1 / config.prosjecni_razmak).toFixed(2)} tickets/tick).
+        </span>
+      </div>
+
+      <div className="field-group">
         <label className="field-label" htmlFor="proxy-accuracy">
           Classifier accuracy <span className="field-value">{Math.round(config.tocnost_proxyja * 100)}%</span>
         </label>
@@ -89,6 +107,21 @@ export default function ConfigPanel({ strategies, config, onChange, onRun, loadi
           onChange={(e) => onChange({ ...config, tocnost_proxyja: Number(e.target.value) })}
         />
         <span className="field-hint"></span>
+      </div>
+
+      <div className="field-group">
+        <label className="field-label" htmlFor="proxy-capacity">
+          Proxy capacity 
+        </label>
+        <input
+          id="proxy-capacity"
+          type="number"
+          min={1}
+          max={9999}
+          value={config.proxy_kapacitet}
+          onChange={(e) => onChange({ ...config, proxy_kapacitet: Number(e.target.value) })}
+        />
+
       </div>
 
       <div className="field-group">
