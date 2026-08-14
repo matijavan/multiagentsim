@@ -28,6 +28,7 @@ def run_simulation(
     duljina_tiketa: float = 5,
     tip_weights: dict = None,
     proxy_kapacitet: int = 5,
+    postotak_urgent: float = 0.1,
 ) -> dict:
     if strategy_key not in STRATEGY_REGISTRY:
         raise ValueError(f"Nepoznata strategija: {strategy_key}")
@@ -41,6 +42,7 @@ def run_simulation(
     tipovi = list(dict.fromkeys(a.name for a in agents))
     tezine = tip_weights or {}
     tip_weights_list = [tezine.get(t, 1.0) for t in tipovi]
+    priority_weights = [postotak_urgent, 1 - postotak_urgent]  # [URGENT, NORMAL]
 
     random.seed(seed)
     env = simpy.Environment()
@@ -52,7 +54,7 @@ def run_simulation(
     scheduler = Scheduler(env, agenti, strategija, metrike, proxy)
 
     env.process(generator_zahtjeva(
-        env, scheduler, broj_tiketa, prosjecni_razmak, duljina_tiketa, tipovi, tip_weights_list,
+        env, scheduler, broj_tiketa, prosjecni_razmak, duljina_tiketa, tipovi, tip_weights_list, priority_weights,
     ))
     env.run()
 
@@ -86,6 +88,7 @@ def run_compare(
     duljina_tiketa: float = 6,
     tip_weights: dict = None,
     proxy_kapacitet: int = 5,
+    postotak_urgent: float = 0.1,
 ) -> list:
     """Pokrece vise strategija na ISTOM seedu (=> identicna simulacija), tako da su
     rezultati direktno usporedivi."""
@@ -100,6 +103,7 @@ def run_compare(
             prosjecni_razmak=prosjecni_razmak,
             tip_weights=tip_weights,
             proxy_kapacitet=proxy_kapacitet,
+            postotak_urgent=postotak_urgent,
         )
         for key in strategy_keys
     ]

@@ -15,6 +15,7 @@ class SimulationConfig(BaseModel):
     seed: int = Field(42, ge=0)
     tocnost_proxyja: float = Field(0.8, ge=0.0, le=1.0)
     proxy_kapacitet: int = Field(5, ge=1)
+    postotak_urgent: float = Field(0.1, ge=0.0, le=1.0)
     agents: List[AgentConfig] = Field(..., min_length=1)
     tip_weights: Optional[Dict[str, float]] = None
     include_log: bool = False
@@ -28,6 +29,7 @@ class CompareConfig(BaseModel):
     seed: int = Field(42, ge=0)
     tocnost_proxyja: float = Field(0.8, ge=0.0, le=1.0)
     proxy_kapacitet: int = Field(5, ge=1)
+    postotak_urgent: float = Field(0.1, ge=0.0, le=1.0)
     agents: List[AgentConfig] = Field(..., min_length=1)
     tip_weights: Optional[Dict[str, float]] = None
 

@@ -15,10 +15,8 @@ from enum import IntEnum
 # ---------------------------------------------------------
 
 class Priority(IntEnum):
-    LOW = 3
-    MEDIUM = 2
-    HIGH = 1
     URGENT = 0  # niza vrijednost = visi prioritet (simpy PriorityResource konvencija)
+    NORMAL = 1
 
 
 @dataclass
@@ -162,7 +160,7 @@ def skill_based_strategy(ticket: Ticket, agenti: list) -> Agent:
 
 def priority_least_loaded_strategy(ticket: Ticket, agenti: list) -> Agent:
     procijenjeni_tip = ticket.predicted_tip if ticket.predicted_tip is not None else ticket.tip
-    if ticket.priority <= Priority.HIGH:
+    if ticket.priority == Priority.URGENT:
         skill_kandidati = [a for a in agenti if a.skill == procijenjeni_tip]
         if skill_kandidati:
             return min(skill_kandidati, key=lambda a: a.opterecenje)
@@ -184,7 +182,7 @@ STRATEGY_REGISTRY = {
         "factory": lambda: skill_based_strategy,
     },
     "hybrid": {
-        "label": "ako je urgent/high onda skill_based, inace least_loaded",
+        "label": "ako je urgent onda skill_based, inace least_loaded",
         "factory": lambda: priority_least_loaded_strategy,
     },
 }
@@ -243,6 +241,7 @@ def generator_zahtjeva(
     duljina_tiketa: float,
     tipovi: list,
     tip_weights: list,
+    priority_weights: list,
 ):
     for i in range(broj_tiketa):
         yield env.timeout(random.expovariate(1.0 / prosjecni_razmak))  # Poisson dolasci
@@ -250,7 +249,7 @@ def generator_zahtjeva(
             id=i,
             tip=random.choices(tipovi, weights=tip_weights)[0],
             priority=random.choices(
-                list(Priority), weights=[0.4, 0.3, 0.2, 0.1]
+                list(Priority), weights=priority_weights
             )[0],
             processing_time=random.uniform(duljina_tiketa - 2.9, duljina_tiketa + 3),
             arrival_time=env.now,

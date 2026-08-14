@@ -14,6 +14,7 @@ const DEFAULT_CONFIG = {
   duljina_tiketa: 6,
   prosjecni_razmak: 0.8,
   proxy_kapacitet: 5,
+  postotak_urgent: 0.1,
   agents: [
     { name: 'tehnicki', kapacitet: 3 },
     { name: 'naplata', kapacitet: 2 },

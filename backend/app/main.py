@@ -43,6 +43,7 @@ def simulate(config: SimulationConfig):
         seed=config.seed,
         tocnost_proxyja=config.tocnost_proxyja,
         proxy_kapacitet=config.proxy_kapacitet,
+        postotak_urgent=config.postotak_urgent,
         tip_weights=config.tip_weights,
         include_log=config.include_log,
     )
@@ -63,5 +64,6 @@ def compare(config: CompareConfig):
         seed=config.seed,
         tocnost_proxyja=config.tocnost_proxyja,
         proxy_kapacitet=config.proxy_kapacitet,
+        postotak_urgent=config.postotak_urgent,
         tip_weights=config.tip_weights,
     )

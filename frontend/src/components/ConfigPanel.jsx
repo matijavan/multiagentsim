@@ -125,6 +125,22 @@ export default function ConfigPanel({ strategies, config, onChange, onRun, loadi
       </div>
 
       <div className="field-group">
+        <label className="field-label" htmlFor="urgent-ratio">
+          Urgent ticket ratio <span className="field-value">{Math.round(config.postotak_urgent * 100)}%</span>
+        </label>
+        <input
+          id="urgent-ratio"
+          type="range"
+          min={0}
+          max={1}
+          step={0.05}
+          value={config.postotak_urgent}
+          onChange={(e) => onChange({ ...config, postotak_urgent: Number(e.target.value) })}
+        />
+        <span className="field-hint">Rest of the tickets are NORMAL priority.</span>
+      </div>
+
+      <div className="field-group">
         <label className="field-label" htmlFor="seed">
           Random seed
         </label>
