@@ -55,6 +55,7 @@ class Metrike:
     cekanje_po_prioritetu: dict = field(default_factory=lambda: {p: [] for p in Priority})
     odbaceni: int = 0
     log: list = field(default_factory=list)  # per-ticket zapisi za frontend
+    dogadjaji: list = field(default_factory=list)  # (vrijeme, +1/-1) za broj aktivnih tiketa
 
     def zabiljezi(self, ticket: Ticket, agent: Agent, start_obrade: float, kraj_obrade: float):
         cekanje = start_obrade - ticket.arrival_time
@@ -62,6 +63,7 @@ class Metrike:
         self.vremena_cekanja.append(cekanje)
         self.vremena_odziva.append(odziv)
         self.cekanje_po_prioritetu[ticket.priority].append(cekanje)
+        self.dogadjaji.append((kraj_obrade, -1))
         self.log.append({
             "id": ticket.id,
             "tip": ticket.tip,
@@ -92,6 +94,24 @@ class Metrike:
     def prosjecno_cekanje_urgent(self):
         urgent = self.cekanje_po_prioritetu[Priority.URGENT]
         return sum(urgent) / len(urgent) if urgent else 0
+
+    def aktivni_po_ticku(self):
+        """Broj tiketa koji su spawnani ali jos nisu do kraja obradeni, po
+        cjelobrojnom ticku simulacije. Rekonstruira se iz `dogadjaji` NAKON
+        sto env.run() zavrsi - ne dira samu simulaciju."""
+        if not self.dogadjaji:
+            return []
+        dogadjaji_sortirani = sorted(self.dogadjaji)
+        max_tick = int(dogadjaji_sortirani[-1][0]) + 1
+        rezultat = []
+        idx = 0
+        trenutno = 0
+        for tick in range(max_tick + 1):
+            while idx < len(dogadjaji_sortirani) and dogadjaji_sortirani[idx][0] <= tick:
+                trenutno += dogadjaji_sortirani[idx][1]
+                idx += 1
+            rezultat.append({"tick": tick, "aktivno": trenutno})
+        return rezultat
 
 
 # ---------------------------------------------------------
@@ -254,6 +274,7 @@ def generator_zahtjeva(
             processing_time=random.uniform(duljina_tiketa - 2.9, duljina_tiketa + 3),
             arrival_time=env.now,
         )
+        scheduler.metrike.dogadjaji.append((env.now, 1))
         env.process(scheduler.obradi_ticket(ticket))
 
 

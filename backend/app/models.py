@@ -59,6 +59,7 @@ class SimulationResult(BaseModel):
     odbaceni: int
     broj_tiketa_obradeno: int
     ticket_log: Optional[list] = None
+    aktivni_tiketi: Optional[list] = None
 
 
 class StrategyInfo(BaseModel):

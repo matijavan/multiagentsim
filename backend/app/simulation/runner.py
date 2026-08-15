@@ -74,6 +74,7 @@ def run_simulation(
         "odbaceni": metrike.odbaceni,
         "broj_tiketa_obradeno": len(metrike.vremena_cekanja),
         "ticket_log": metrike.log if include_log else None,
+        "aktivni_tiketi": metrike.aktivni_po_ticku(),
     }
     return rezultat
 

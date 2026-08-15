@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import ConfigPanel from './components/ConfigPanel.jsx'
 import SummaryCards from './components/SummaryCards.jsx'
 import MetricsChart from './components/MetricsChart.jsx'
+import ActiveTicketsChart from './components/ActiveTicketsChart.jsx'
 import ResultsTable from './components/ResultsTable.jsx'
 import { fetchStrategies, runCompare } from './api.js'
 import './App.css'
@@ -84,6 +85,7 @@ export default function App() {
             <>
               <SummaryCards results={results} />
               <MetricsChart results={results} />
+              <ActiveTicketsChart results={results} />
               <ResultsTable results={results} />
             </>
           )}
