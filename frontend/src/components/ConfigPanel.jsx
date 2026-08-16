@@ -62,7 +62,7 @@ export default function ConfigPanel({ strategies, config, onChange, onRun, loadi
 
       <div className="field-group">
         <label className="field-label" htmlFor="ticket-length">
-          Ticket processing length <span className="field-value">{config.duljina_tiketa}</span>
+          Ticket processing length <span className="field-value">{config.duljina_tiketa} ticks</span>
         </label>
         <input
           id="ticket-length"
@@ -77,20 +77,17 @@ export default function ConfigPanel({ strategies, config, onChange, onRun, loadi
 
       <div className="field-group">
         <label className="field-label" htmlFor="ticket-gap">
-          Avg. time between ticket arrivals <span className="field-value">{config.prosjecni_razmak.toFixed(1)}</span>
+          Ticket spawn rate <span className="field-value">{(1 / config.prosjecni_razmak).toFixed(2)} tickets/tick</span>
         </label>
         <input
           id="ticket-gap"
           type="range"
-          min={0.2}
-          max={3}
-          step={0.1}
-          value={config.prosjecni_razmak}
-          onChange={(e) => onChange({ ...config, prosjecni_razmak: Number(e.target.value) })}
+          min={0.33}
+          max={5}
+          step={0.05}
+          value={1 / config.prosjecni_razmak}
+          onChange={(e) => onChange({ ...config, prosjecni_razmak: 1 / Number(e.target.value) })}
         />
-        <span className="field-hint">
-          Lower = tickets spawn more often (~{(1 / config.prosjecni_razmak).toFixed(2)} tickets/tick).
-        </span>
       </div>
 
       <div className="field-group">
@@ -137,7 +134,6 @@ export default function ConfigPanel({ strategies, config, onChange, onRun, loadi
           value={config.postotak_urgent}
           onChange={(e) => onChange({ ...config, postotak_urgent: Number(e.target.value) })}
         />
-        <span className="field-hint">Rest of the tickets are NORMAL priority.</span>
       </div>
 
       <div className="field-group">
@@ -148,11 +144,8 @@ export default function ConfigPanel({ strategies, config, onChange, onRun, loadi
             checked={config.odbacuj_pune}
             onChange={(e) => onChange({ ...config, odbacuj_pune: e.target.checked })}
           />
-          <span>Discard tickets when proxy is full</span>
+          <span>Discard tickets</span>
         </label>
-        <span className="field-hint">
-          Instead of waiting for a free triage slot, the ticket is dropped and counted as discarded.
-        </span>
       </div>
 
       <div className="field-group">
