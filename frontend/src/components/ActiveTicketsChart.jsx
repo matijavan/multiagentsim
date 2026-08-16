@@ -28,10 +28,16 @@ export default function ActiveTicketsChart({ results }) {
           <Tooltip
             contentStyle={{ fontSize: 12, borderRadius: 8, background: '#1a1a1a', borderColor: '#3a3a3a' }}
             labelStyle={{ color: 'rgba(255,255,255,0.87)' }}
+            isAnimationActive={false}
           />
           <Legend wrapperStyle={{ fontSize: 13, color: 'rgba(255,255,255,0.87)' }} />
           {results.map((r, i) => (
-            <Bar key={r.strategy} dataKey={r.label} fill={SERIES_COLORS[i % SERIES_COLORS.length]} />
+            <Bar
+              key={r.strategy}
+              dataKey={r.label}
+              fill={SERIES_COLORS[i % SERIES_COLORS.length]}
+              isAnimationActive={false}
+            />
           ))}
           <Brush
             dataKey="tick"
@@ -40,6 +46,8 @@ export default function ActiveTicketsChart({ results }) {
             fill="#1a1a1a"
             travellerWidth={8}
             tickFormatter={(tick) => tick}
+            startIndex={0}
+            endIndex={Math.min(60, data.length - 1)}
           />
         </BarChart>
       </ResponsiveContainer>
