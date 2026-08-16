@@ -44,6 +44,7 @@ def simulate(config: SimulationConfig):
         tocnost_proxyja=config.tocnost_proxyja,
         proxy_kapacitet=config.proxy_kapacitet,
         postotak_urgent=config.postotak_urgent,
+        odbacuj_pune=config.odbacuj_pune,
         tip_weights=config.tip_weights,
         include_log=config.include_log,
     )
@@ -65,5 +66,6 @@ def compare(config: CompareConfig):
         tocnost_proxyja=config.tocnost_proxyja,
         proxy_kapacitet=config.proxy_kapacitet,
         postotak_urgent=config.postotak_urgent,
+        odbacuj_pune=config.odbacuj_pune,
         tip_weights=config.tip_weights,
     )

@@ -16,6 +16,7 @@ const DEFAULT_CONFIG = {
   prosjecni_razmak: 0.8,
   proxy_kapacitet: 5,
   postotak_urgent: 0.1,
+  odbacuj_pune: false,
   agents: [
     { name: 'tehnicki', kapacitet: 3 },
     { name: 'naplata', kapacitet: 2 },

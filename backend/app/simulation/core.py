@@ -95,6 +95,10 @@ class Metrike:
         urgent = self.cekanje_po_prioritetu[Priority.URGENT]
         return sum(urgent) / len(urgent) if urgent else 0
 
+    def odbaci(self, ticket: Ticket, vrijeme: float):
+        self.odbaceni += 1
+        self.dogadjaji.append((vrijeme, -1))
+
     def aktivni_po_ticku(self):
         """Broj tiketa koji su spawnani ali jos nisu do kraja obradeni, po
         cjelobrojnom ticku simulacije. Rekonstruira se iz `dogadjaji` NAKON
@@ -213,14 +217,19 @@ STRATEGY_REGISTRY = {
 # ---------------------------------------------------------
 
 class Scheduler:
-    def __init__(self, env: simpy.Environment, agenti: list, strategija, metrike: Metrike, proxy: ProxyAgent):
+    def __init__(self, env: simpy.Environment, agenti: list, strategija, metrike: Metrike, proxy: ProxyAgent, odbacuj_pune: bool = False):
         self.env = env
         self.agenti = agenti
         self.strategija = strategija
         self.metrike = metrike
         self.proxy = proxy
+        self.odbacuj_pune = odbacuj_pune
 
     def obradi_ticket(self, ticket: Ticket):
+        if self.odbacuj_pune and self.proxy.trenutno_zauzet >= self.proxy.kapacitet:
+            self.metrike.odbaci(ticket, self.env.now)
+            return
+
         while self.proxy.trenutno_zauzet >= self.proxy.kapacitet:
             yield self.env.timeout(0.1)
 

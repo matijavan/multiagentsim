@@ -141,6 +141,21 @@ export default function ConfigPanel({ strategies, config, onChange, onRun, loadi
       </div>
 
       <div className="field-group">
+        <label className="checkbox-row" htmlFor="discard-full-proxy">
+          <input
+            id="discard-full-proxy"
+            type="checkbox"
+            checked={config.odbacuj_pune}
+            onChange={(e) => onChange({ ...config, odbacuj_pune: e.target.checked })}
+          />
+          <span>Discard tickets when proxy is full</span>
+        </label>
+        <span className="field-hint">
+          Instead of waiting for a free triage slot, the ticket is dropped and counted as discarded.
+        </span>
+      </div>
+
+      <div className="field-group">
         <label className="field-label" htmlFor="seed">
           Random seed
         </label>
