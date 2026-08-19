@@ -45,6 +45,7 @@ def simulate(config: SimulationConfig):
         proxy_kapacitet=config.proxy_kapacitet,
         postotak_urgent=config.postotak_urgent,
         odbacuj_pune=config.odbacuj_pune,
+        faktor_penala=config.faktor_penala,
         tip_weights=config.tip_weights,
         include_log=config.include_log,
     )
@@ -67,5 +68,6 @@ def compare(config: CompareConfig):
         proxy_kapacitet=config.proxy_kapacitet,
         postotak_urgent=config.postotak_urgent,
         odbacuj_pune=config.odbacuj_pune,
+        faktor_penala=config.faktor_penala,
         tip_weights=config.tip_weights,
     )

@@ -17,6 +17,7 @@ class SimulationConfig(BaseModel):
     proxy_kapacitet: int = Field(5, ge=1)
     postotak_urgent: float = Field(0.1, ge=0.0, le=1.0)
     odbacuj_pune: bool = False
+    faktor_penala: float = Field(2.2, ge=1.0, le=5.0)
     agents: List[AgentConfig] = Field(..., min_length=1)
     tip_weights: Optional[Dict[str, float]] = None
     include_log: bool = False
@@ -32,6 +33,7 @@ class CompareConfig(BaseModel):
     proxy_kapacitet: int = Field(5, ge=1)
     postotak_urgent: float = Field(0.1, ge=0.0, le=1.0)
     odbacuj_pune: bool = False
+    faktor_penala: float = Field(2.2, ge=1.0, le=5.0)
     agents: List[AgentConfig] = Field(..., min_length=1)
     tip_weights: Optional[Dict[str, float]] = None
 

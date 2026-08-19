@@ -17,6 +17,7 @@ const DEFAULT_CONFIG = {
   proxy_kapacitet: 5,
   postotak_urgent: 0.1,
   odbacuj_pune: false,
+  faktor_penala: 2.2,
   agents: [
     { name: 'tehnicki', kapacitet: 3 },
     { name: 'naplata', kapacitet: 2 },

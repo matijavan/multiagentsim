@@ -19,7 +19,7 @@ export default function ActiveTicketsChart({ results }) {
 
   return (
     <div className="panel chart-panel">
-      <div className="eyebrow">Active (in-flight) tickets over time</div>
+      <div className="eyebrow">Active tickets over time</div>
       <ResponsiveContainer width="100%" height={320}>
         <BarChart data={data} margin={{ top: 8, right: 16, left: 0, bottom: 8 }}>
           <CartesianGrid strokeDasharray="3 3" stroke="#3a3a3a" />
@@ -51,7 +51,6 @@ export default function ActiveTicketsChart({ results }) {
           />
         </BarChart>
       </ResponsiveContainer>
-      <span className="field-hint">Drag the handles below the chart to zoom into a tick range.</span>
     </div>
   )
 }

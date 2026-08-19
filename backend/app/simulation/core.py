@@ -176,10 +176,10 @@ def least_loaded_strategy(ticket: Ticket, agenti: list) -> Agent:
 
 def skill_based_strategy(ticket: Ticket, agenti: list) -> Agent:
     procijenjeni_tip = ticket.predicted_tip if ticket.predicted_tip is not None else ticket.tip
-    kandidati = [a for a in agenti if a.skill == procijenjeni_tip and a.opterecenje < 1.0]
+    kandidati = [a for a in agenti if a.skill == procijenjeni_tip]
     if kandidati:
         return min(kandidati, key=lambda a: a.opterecenje)
-    return least_loaded_strategy(ticket, agenti)
+    return least_loaded_strategy(ticket, agenti) 
 
 
 def priority_least_loaded_strategy(ticket: Ticket, agenti: list) -> Agent:
@@ -206,7 +206,7 @@ STRATEGY_REGISTRY = {
         "factory": lambda: skill_based_strategy,
     },
     "hybrid": {
-        "label": "ako je urgent onda skill_based, inace least_loaded",
+        "label": "Skill Based if urgent, else Least Loaded",
         "factory": lambda: priority_least_loaded_strategy,
     },
 }
@@ -217,13 +217,14 @@ STRATEGY_REGISTRY = {
 # ---------------------------------------------------------
 
 class Scheduler:
-    def __init__(self, env: simpy.Environment, agenti: list, strategija, metrike: Metrike, proxy: ProxyAgent, odbacuj_pune: bool = False):
+    def __init__(self, env: simpy.Environment, agenti: list, strategija, metrike: Metrike, proxy: ProxyAgent, odbacuj_pune: bool = False, faktor_penala: float = 2.2):
         self.env = env
         self.agenti = agenti
         self.strategija = strategija
         self.metrike = metrike
         self.proxy = proxy
         self.odbacuj_pune = odbacuj_pune
+        self.faktor_penala = faktor_penala
 
     def obradi_ticket(self, ticket: Ticket):
         if self.odbacuj_pune and self.proxy.trenutno_zauzet >= self.proxy.kapacitet:
@@ -250,7 +251,7 @@ class Scheduler:
         # brzina obrade ovisi o STVARNOM tipu (ticket.tip), ne o proxyjevoj
         # procjeni - pogresna procjena ne cini posao lakim, samo moze
         # poslati tiket agentu koji za njega nije specijaliziran.
-        faktor = 1.0 if agent.skill == ticket.tip else 2.2
+        faktor = 1.0 if agent.skill == ticket.tip else self.faktor_penala
         yield self.env.timeout(ticket.processing_time * faktor)
 
         agent.trenutno_zauzet -= 1

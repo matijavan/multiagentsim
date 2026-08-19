@@ -122,6 +122,21 @@ export default function ConfigPanel({ strategies, config, onChange, onRun, loadi
       </div>
 
       <div className="field-group">
+        <label className="field-label" htmlFor="mismatch-penalty">
+          Penalty factor <span className="field-value">{config.faktor_penala.toFixed(1)}×</span>
+        </label>
+        <input
+          id="mismatch-penalty"
+          type="range"
+          min={1}
+          max={5}
+          step={0.1}
+          value={config.faktor_penala}
+          onChange={(e) => onChange({ ...config, faktor_penala: Number(e.target.value) })}
+        />
+      </div>
+
+      <div className="field-group">
         <label className="field-label" htmlFor="proxy-capacity">
           Proxy capacity 
         </label>
