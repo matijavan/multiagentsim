@@ -161,12 +161,13 @@ class ProxyAgent:
 # ---------------------------------------------------------
 
 def round_robin_strategy():
-    zadnji_index = [-1]
+    zadnji_index = -1
 
-    def strategija(ticket: Ticket, agenti: list) -> Agent:
-        zadnji_index[0] = (zadnji_index[0] + 1) % len(agenti)
-        return agenti[zadnji_index[0]]
-
+    def strategija(ticket, agenti):
+        nonlocal zadnji_index
+        zadnji_index = (zadnji_index + 1) % len(agenti)
+        return agenti[zadnji_index]
+    
     return strategija
 
 
