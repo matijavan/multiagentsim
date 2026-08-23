@@ -178,7 +178,8 @@ def weighted_round_robin_strategy():
         nonlocal zadnji_index
         prosireno = [a for a in agenti for _ in range(a.kapacitet)]
         zadnji_index = (zadnji_index + 1) % len(prosireno)
-        return prosireno[zadnji_index] #prosireno ima npr [0,0,0,1,2,2] i bira index agenta
+        return prosireno[zadnji_index] 
+        #prosireno ima npr [0,0,0,1,2,2] i bira index agenta
 
     return strategija
 

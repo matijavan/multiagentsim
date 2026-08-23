@@ -82,9 +82,9 @@ export default function ConfigPanel({ strategies, config, onChange, onRun, loadi
         <input
           id="ticket-gap"
           type="range"
-          min={0.33}
+          min={0.3}
           max={5}
-          step={0.05}
+          step={0.1}
           value={1 / config.prosjecni_razmak}
           onChange={(e) => onChange({ ...config, prosjecni_razmak: 1 / Number(e.target.value) })}
         />
