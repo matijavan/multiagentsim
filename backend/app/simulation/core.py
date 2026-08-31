@@ -163,7 +163,7 @@ class ProxyAgent:
 def round_robin_strategy():
     zadnji_index = -1 #za pocetak samo definiraj varijablu
 
-    def strategija(ticket, agenti):
+    def strategija(ticket: Ticket, agenti: list) -> Agent:
         nonlocal zadnji_index
         zadnji_index = (zadnji_index + 1) % len(agenti)
         return agenti[zadnji_index]
@@ -174,7 +174,7 @@ def round_robin_strategy():
 def weighted_round_robin_strategy():
     zadnji_index = -1
 
-    def strategija(ticket, agenti):
+    def strategija(ticket: Ticket, agenti: list) -> Agent:
         nonlocal zadnji_index
         prosireno = [a for a in agenti for _ in range(a.kapacitet)]
         zadnji_index = (zadnji_index + 1) % len(prosireno)
