@@ -1,3 +1,14 @@
+# Multi-agent scheduler simulator
+
+A small fullstack app around the `simpy`-based multi-agent ticket scheduling
+simulation: a FastAPI backend runs the simulation on demand, a React
+frontend lets you configure a run and compares strategies side by side.
+
+```
+backend/     FastAPI app wrapping the simulation (app/simulation/core.py, runner.py)
+frontend/    React + Vite app (config panel, charts, table)
+```
+
 ## Backend
 
 ```bash
