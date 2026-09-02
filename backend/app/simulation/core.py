@@ -15,10 +15,8 @@ from enum import IntEnum
 # ---------------------------------------------------------
 
 class Priority(IntEnum):
-    LOW = 3
-    MEDIUM = 2
-    HIGH = 1
     URGENT = 0  # niza vrijednost = visi prioritet (simpy PriorityResource konvencija)
+    NORMAL = 1
 
 
 @dataclass
@@ -57,6 +55,7 @@ class Metrike:
     cekanje_po_prioritetu: dict = field(default_factory=lambda: {p: [] for p in Priority})
     odbaceni: int = 0
     log: list = field(default_factory=list)  # per-ticket zapisi za frontend
+    dogadjaji: list = field(default_factory=list)  # (vrijeme, +1/-1) za broj aktivnih tiketa
 
     def zabiljezi(self, ticket: Ticket, agent: Agent, start_obrade: float, kraj_obrade: float):
         cekanje = start_obrade - ticket.arrival_time
@@ -64,6 +63,7 @@ class Metrike:
         self.vremena_cekanja.append(cekanje)
         self.vremena_odziva.append(odziv)
         self.cekanje_po_prioritetu[ticket.priority].append(cekanje)
+        self.dogadjaji.append((kraj_obrade, -1))
         self.log.append({
             "id": ticket.id,
             "tip": ticket.tip,
@@ -95,6 +95,28 @@ class Metrike:
         urgent = self.cekanje_po_prioritetu[Priority.URGENT]
         return sum(urgent) / len(urgent) if urgent else 0
 
+    def odbaci(self, ticket: Ticket, vrijeme: float):
+        self.odbaceni += 1
+        self.dogadjaji.append((vrijeme, -1))
+
+    def aktivni_po_ticku(self):
+        """Broj tiketa koji su spawnani ali jos nisu do kraja obradeni, po
+        cjelobrojnom ticku simulacije. Rekonstruira se iz `dogadjaji` NAKON
+        sto env.run() zavrsi - ne dira samu simulaciju."""
+        if not self.dogadjaji:
+            return []
+        dogadjaji_sortirani = sorted(self.dogadjaji)
+        max_tick = int(dogadjaji_sortirani[-1][0]) + 1
+        rezultat = []
+        idx = 0
+        trenutno = 0
+        for tick in range(max_tick + 1):
+            while idx < len(dogadjaji_sortirani) and dogadjaji_sortirani[idx][0] <= tick:
+                trenutno += dogadjaji_sortirani[idx][1]
+                idx += 1
+            rezultat.append({"tick": tick, "aktivno": trenutno})
+        return rezultat
+
 
 # ---------------------------------------------------------
 # 3. PROXY AGENT (KLASIFIKACIJA PRIJE RASPOREDIVANJA)
@@ -105,13 +127,18 @@ class Metrike:
 # procjene, ne stvarnog tipa. Stvarni tip i dalje odreduje koliko obrada
 # stvarno traje (vidi faktor u Scheduler.obradi_ticket).
 
+PROXY_KLASIFIKACIJA_TRAJANJE = 0.2  # fiksno trajanje jedne klasifikacije
+
+
 class ProxyAgent:
-    def __init__(self, tocnost: float = 0.8, moguci_tipovi: list = None, seed: int = None):
+    def __init__(self, tocnost: float = 0.8, moguci_tipovi: list = None, seed: int = None, kapacitet: int = 5):
         self.tocnost = tocnost
         self.moguci_tipovi = moguci_tipovi or ["tehnicki", "naplata", "opci"]
         self.rng = random.Random(seed)  # zaseban RNG - ne remeti generiranje tiketa
         self.tocne_klasifikacije = 0
         self.pogresne_klasifikacije = 0
+        self.kapacitet = kapacitet
+        self.trenutno_zauzet = 0
 
     def klasificiraj(self, ticket: Ticket) -> str:
         if self.rng.random() < self.tocnost:
@@ -134,12 +161,25 @@ class ProxyAgent:
 # ---------------------------------------------------------
 
 def round_robin_strategy():
-    """Vraca funkciju koja pamti index zadnjeg koristenog agenta (closure/state)."""
-    zadnji_index = [-1]
+    zadnji_index = -1 #za pocetak samo definiraj varijablu
 
     def strategija(ticket: Ticket, agenti: list) -> Agent:
-        zadnji_index[0] = (zadnji_index[0] + 1) % len(agenti)
-        return agenti[zadnji_index[0]]
+        nonlocal zadnji_index
+        zadnji_index = (zadnji_index + 1) % len(agenti)
+        return agenti[zadnji_index]
+    
+    return strategija
+
+
+def weighted_round_robin_strategy():
+    zadnji_index = -1
+
+    def strategija(ticket: Ticket, agenti: list) -> Agent:
+        nonlocal zadnji_index
+        prosireno = [a for a in agenti for _ in range(a.kapacitet)]
+        zadnji_index = (zadnji_index + 1) % len(prosireno)
+        return prosireno[zadnji_index] 
+        #prosireno ima npr [0,0,0,1,2,2] i bira index agenta
 
     return strategija
 
@@ -150,15 +190,15 @@ def least_loaded_strategy(ticket: Ticket, agenti: list) -> Agent:
 
 def skill_based_strategy(ticket: Ticket, agenti: list) -> Agent:
     procijenjeni_tip = ticket.predicted_tip if ticket.predicted_tip is not None else ticket.tip
-    kandidati = [a for a in agenti if a.skill == procijenjeni_tip and a.opterecenje < 1.0]
+    kandidati = [a for a in agenti if a.skill == procijenjeni_tip]
     if kandidati:
         return min(kandidati, key=lambda a: a.opterecenje)
-    return least_loaded_strategy(ticket, agenti)
+    return least_loaded_strategy(ticket, agenti) 
 
 
 def priority_least_loaded_strategy(ticket: Ticket, agenti: list) -> Agent:
     procijenjeni_tip = ticket.predicted_tip if ticket.predicted_tip is not None else ticket.tip
-    if ticket.priority <= Priority.HIGH:
+    if ticket.priority == Priority.URGENT:
         skill_kandidati = [a for a in agenti if a.skill == procijenjeni_tip]
         if skill_kandidati:
             return min(skill_kandidati, key=lambda a: a.opterecenje)
@@ -171,6 +211,10 @@ STRATEGY_REGISTRY = {
         "label": "Round Robin",
         "factory": lambda: round_robin_strategy(),
     },
+    "weighted_round_robin": {
+        "label": "Weighted Round Robin",
+        "factory": lambda: weighted_round_robin_strategy(),
+    },
     "least_loaded": {
         "label": "Least Loaded",
         "factory": lambda: least_loaded_strategy,
@@ -180,7 +224,7 @@ STRATEGY_REGISTRY = {
         "factory": lambda: skill_based_strategy,
     },
     "hybrid": {
-        "label": "Hybrid (Priority + Least Loaded)",
+        "label": "Skill Based if urgent, else Least Loaded",
         "factory": lambda: priority_least_loaded_strategy,
     },
 }
@@ -191,15 +235,27 @@ STRATEGY_REGISTRY = {
 # ---------------------------------------------------------
 
 class Scheduler:
-    def __init__(self, env: simpy.Environment, agenti: list, strategija, metrike: Metrike, proxy: ProxyAgent):
+    def __init__(self, env: simpy.Environment, agenti: list, strategija, metrike: Metrike, proxy: ProxyAgent, odbacuj_pune: bool = False, faktor_penala: float = 2.2):
         self.env = env
         self.agenti = agenti
         self.strategija = strategija
         self.metrike = metrike
         self.proxy = proxy
+        self.odbacuj_pune = odbacuj_pune
+        self.faktor_penala = faktor_penala
 
     def obradi_ticket(self, ticket: Ticket):
+        if self.odbacuj_pune and self.proxy.trenutno_zauzet >= self.proxy.kapacitet:
+            self.metrike.odbaci(ticket, self.env.now)
+            return
+
+        while self.proxy.trenutno_zauzet >= self.proxy.kapacitet:
+            yield self.env.timeout(0.1)
+
+        self.proxy.trenutno_zauzet += 1
+        yield self.env.timeout(PROXY_KLASIFIKACIJA_TRAJANJE)
         self.proxy.klasificiraj(ticket)
+        self.proxy.trenutno_zauzet -= 1
 
         agent = self.strategija(ticket, self.agenti)
 
@@ -213,7 +269,7 @@ class Scheduler:
         # brzina obrade ovisi o STVARNOM tipu (ticket.tip), ne o proxyjevoj
         # procjeni - pogresna procjena ne cini posao lakim, samo moze
         # poslati tiket agentu koji za njega nije specijaliziran.
-        faktor = 1.0 if agent.skill == ticket.tip else 2.2
+        faktor = 1.0 if agent.skill == ticket.tip else self.faktor_penala
         yield self.env.timeout(ticket.processing_time * faktor)
 
         agent.trenutno_zauzet -= 1
@@ -233,6 +289,7 @@ def generator_zahtjeva(
     duljina_tiketa: float,
     tipovi: list,
     tip_weights: list,
+    priority_weights: list,
 ):
     for i in range(broj_tiketa):
         yield env.timeout(random.expovariate(1.0 / prosjecni_razmak))  # Poisson dolasci
@@ -240,18 +297,16 @@ def generator_zahtjeva(
             id=i,
             tip=random.choices(tipovi, weights=tip_weights)[0],
             priority=random.choices(
-                list(Priority), weights=[0.4, 0.3, 0.2, 0.1]
+                list(Priority), weights=priority_weights
             )[0],
             processing_time=random.uniform(duljina_tiketa - 2.9, duljina_tiketa + 3),
             arrival_time=env.now,
         )
+        scheduler.metrike.dogadjaji.append((env.now, 1))
         env.process(scheduler.obradi_ticket(ticket))
 
 
 def build_agenti(agent_configs: list) -> list:
-    """Svjeza lista agenata iz korisnicke konfiguracije - mora se pozivati po
-    simulaciji jer Agent nosi mutable stanje. `skill` je namjerno isti kao
-    `name` - jedno polje u konfiguraciji odreduje i identitet i specijalizaciju."""
     return [
         Agent(name=c.name, kapacitet=c.kapacitet, skill=c.name)
         for c in agent_configs

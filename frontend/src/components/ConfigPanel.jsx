@@ -62,7 +62,7 @@ export default function ConfigPanel({ strategies, config, onChange, onRun, loadi
 
       <div className="field-group">
         <label className="field-label" htmlFor="ticket-length">
-          Ticket processing length <span className="field-value">{config.duljina_tiketa}</span>
+          Ticket processing length <span className="field-value">{config.duljina_tiketa} ticks</span>
         </label>
         <input
           id="ticket-length"
@@ -72,6 +72,21 @@ export default function ConfigPanel({ strategies, config, onChange, onRun, loadi
           step={1}
           value={config.duljina_tiketa}
           onChange={(e) => onChange({ ...config, duljina_tiketa: Number(e.target.value) })}
+        />
+      </div>
+
+      <div className="field-group">
+        <label className="field-label" htmlFor="ticket-gap">
+          Ticket spawn rate <span className="field-value">{(1 / config.prosjecni_razmak).toFixed(2)} tickets/tick</span>
+        </label>
+        <input
+          id="ticket-gap"
+          type="range"
+          min={0.3}
+          max={5}
+          step={0.1}
+          value={1 / config.prosjecni_razmak}
+          onChange={(e) => onChange({ ...config, prosjecni_razmak: 1 / Number(e.target.value) })}
         />
       </div>
 
@@ -91,6 +106,51 @@ export default function ConfigPanel({ strategies, config, onChange, onRun, loadi
         <span className="field-hint"></span>
       </div>
 
+        <div className="field-group">
+          <label className="field-label" htmlFor="urgent-ratio">
+            Urgent ticket ratio <span className="field-value">{Math.round(config.postotak_urgent * 100)}%</span>
+          </label>
+          <input
+            id="urgent-ratio"
+            type="range"
+            min={0}
+            max={1}
+            step={0.05}
+            value={config.postotak_urgent}
+            onChange={(e) => onChange({ ...config, postotak_urgent: Number(e.target.value) })}
+          />
+      </div>
+
+      <div className="field-group">
+        <label className="field-label" htmlFor="mismatch-penalty">
+          Penalty factor <span className="field-value">{config.faktor_penala.toFixed(1)}×</span>
+        </label>
+        <input
+          id="mismatch-penalty"
+          type="range"
+          min={1}
+          max={5}
+          step={0.1}
+          value={config.faktor_penala}
+          onChange={(e) => onChange({ ...config, faktor_penala: Number(e.target.value) })}
+        />
+      </div>
+
+      <div className="field-group">
+        <label className="field-label" htmlFor="proxy-capacity">
+          Proxy capacity 
+        </label>
+        <input
+          id="proxy-capacity"
+          type="number"
+          min={1}
+          max={9999}
+          value={config.proxy_kapacitet}
+          onChange={(e) => onChange({ ...config, proxy_kapacitet: Number(e.target.value) })}
+        />
+
+      </div>
+
       <div className="field-group">
         <label className="field-label" htmlFor="seed">
           Random seed
@@ -103,6 +163,18 @@ export default function ConfigPanel({ strategies, config, onChange, onRun, loadi
           onChange={(e) => onChange({ ...config, seed: Number(e.target.value) })}
         />
         <span className="field-hint"></span>
+      </div>
+
+      <div className="field-group">
+        <label className="checkbox-row" htmlFor="discard-full-proxy">
+          <input
+            id="discard-full-proxy"
+            type="checkbox"
+            checked={config.odbacuj_pune}
+            onChange={(e) => onChange({ ...config, odbacuj_pune: e.target.checked })}
+          />
+          <span>Discard tickets</span>
+        </label>
       </div>
 
       <div className="field-group">

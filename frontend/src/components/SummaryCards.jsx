@@ -18,15 +18,6 @@ export default function SummaryCards({ results }) {
 
   return (
     <div className="summary-block">
-      <div className="proxy-readout">
-        <span className="field-label">Accuracy classifier</span>
-        <div className="proxy-readout-row">
-          <SignalMeter accuracy={proxyAccuracy} />
-          <span className="proxy-readout-value">
-            {(proxyAccuracy * 100).toFixed(1)}% ({results[0].proxy_tocne}/{results[0].proxy_ukupno})
-          </span>
-        </div>
-      </div>
 
       <div className="card-grid">
         {results.map((r) => (

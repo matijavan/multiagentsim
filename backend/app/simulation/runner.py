@@ -27,6 +27,10 @@ def run_simulation(
     prosjecni_razmak: float = 0.8,
     duljina_tiketa: float = 5,
     tip_weights: dict = None,
+    proxy_kapacitet: int = 5,
+    postotak_urgent: float = 0.1,
+    odbacuj_pune: bool = False,
+    faktor_penala: float = 2.2,
 ) -> dict:
     if strategy_key not in STRATEGY_REGISTRY:
         raise ValueError(f"Nepoznata strategija: {strategy_key}")
@@ -40,6 +44,7 @@ def run_simulation(
     tipovi = list(dict.fromkeys(a.name for a in agents))
     tezine = tip_weights or {}
     tip_weights_list = [tezine.get(t, 1.0) for t in tipovi]
+    priority_weights = [postotak_urgent, 1 - postotak_urgent]  # [URGENT, NORMAL]
 
     random.seed(seed)
     env = simpy.Environment()
@@ -47,11 +52,11 @@ def run_simulation(
     metrike = Metrike()
     # Zaseban seed za proxy RNG - generiranje tiketa ostaje identicno bez
     # obzira na tocnost proxyja, pa je usporedba strategija fer.
-    proxy = ProxyAgent(tocnost=tocnost_proxyja, moguci_tipovi=tipovi, seed=seed + 1000)
-    scheduler = Scheduler(env, agenti, strategija, metrike, proxy)
+    proxy = ProxyAgent(tocnost=tocnost_proxyja, moguci_tipovi=tipovi, seed=seed + 1000, kapacitet=proxy_kapacitet)
+    scheduler = Scheduler(env, agenti, strategija, metrike, proxy, odbacuj_pune=odbacuj_pune, faktor_penala=faktor_penala)
 
     env.process(generator_zahtjeva(
-        env, scheduler, broj_tiketa, prosjecni_razmak, duljina_tiketa, tipovi, tip_weights_list,
+        env, scheduler, broj_tiketa, prosjecni_razmak, duljina_tiketa, tipovi, tip_weights_list, priority_weights,
     ))
     env.run()
 
@@ -71,6 +76,7 @@ def run_simulation(
         "odbaceni": metrike.odbaceni,
         "broj_tiketa_obradeno": len(metrike.vremena_cekanja),
         "ticket_log": metrike.log if include_log else None,
+        "aktivni_tiketi": metrike.aktivni_po_ticku(),
     }
     return rezultat
 
@@ -84,6 +90,10 @@ def run_compare(
     prosjecni_razmak: float = 0.8,
     duljina_tiketa: float = 6,
     tip_weights: dict = None,
+    proxy_kapacitet: int = 5,
+    postotak_urgent: float = 0.1,
+    odbacuj_pune: bool = False,
+    faktor_penala: float = 2.2,
 ) -> list:
     """Pokrece vise strategija na ISTOM seedu (=> identicna simulacija), tako da su
     rezultati direktno usporedivi."""
@@ -97,6 +107,10 @@ def run_compare(
             tocnost_proxyja=tocnost_proxyja,
             prosjecni_razmak=prosjecni_razmak,
             tip_weights=tip_weights,
+            proxy_kapacitet=proxy_kapacitet,
+            postotak_urgent=postotak_urgent,
+            odbacuj_pune=odbacuj_pune,
+            faktor_penala=faktor_penala,
         )
         for key in strategy_keys
     ]

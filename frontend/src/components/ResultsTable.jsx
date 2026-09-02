@@ -15,6 +15,7 @@ export default function ResultsTable({ results }) {
               <th>P95 wait</th>
               <th>Urgent avg wait</th>
               <th>Tickets served</th>
+              <th>Discarded</th>
             </tr>
           </thead>
           <tbody>
@@ -27,6 +28,7 @@ export default function ResultsTable({ results }) {
                 <td>{r.p95_cekanje.toFixed(2)}</td>
                 <td>{r.prosjecno_cekanje_urgent.toFixed(2)}</td>
                 <td>{r.broj_tiketa_obradeno}</td>
+                <td>{r.odbaceni}</td>
               </tr>
             ))}
           </tbody>
