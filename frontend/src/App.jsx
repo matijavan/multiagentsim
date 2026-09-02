@@ -10,18 +10,15 @@ import './App.css'
 const DEFAULT_CONFIG = {
   strategies: ['round_robin', 'least_loaded', 'skill_based', 'hybrid'],
   broj_tiketa: 200,
-  seed: 42,
+  seed: 1,
   tocnost_proxyja: 1,
   duljina_tiketa: 6,
   prosjecni_razmak: 0.8,
   proxy_kapacitet: 5,
   postotak_urgent: 0.1,
   odbacuj_pune: false,
-  faktor_penala: 2.2,
+  faktor_penala: 2.0,
   agents: [
-    { name: 'tehnicki', kapacitet: 3 },
-    { name: 'naplata', kapacitet: 2 },
-    { name: 'opci', kapacitet: 4 },
   ],
   tip_weights: {},
 }
