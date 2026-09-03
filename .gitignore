@@ -9,5 +9,4 @@ __pycache__/
 node_modules/
 dist/
 .env
-start.bat
 /backend/scripts
