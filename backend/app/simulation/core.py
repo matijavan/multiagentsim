@@ -1,9 +1,3 @@
-"""
-Jezgra simulacije viseagentskog sustava za korisnicku podrsku.
-Cista logika, bez ispisa/CLI-ja - to radi runner.py koji ovo poziva
-i vraca strukturirane rezultate API sloju.
-"""
-
 import random
 import simpy
 from dataclasses import dataclass, field
@@ -26,8 +20,6 @@ class Ticket:
     priority: Priority
     processing_time: float
     arrival_time: float
-    # Popunjava ga ProxyAgent prije rasporedivanja. Samo PROCJENA tipa -
-    # ne mora se poklapati sa stvarnim `tip`.
     predicted_tip: str = None
 
 
@@ -40,7 +32,6 @@ class Agent:
 
     @property
     def opterecenje(self):
-        """Postotak iskoristenosti kapaciteta - koristi ga least-loaded strategija."""
         return self.trenutno_zauzet / self.kapacitet
 
 
@@ -121,20 +112,16 @@ class Metrike:
 # ---------------------------------------------------------
 # 3. PROXY AGENT (KLASIFIKACIJA PRIJE RASPOREDIVANJA)
 # ---------------------------------------------------------
-# Simulira "prvi kontakt" koji na brzinu procjenjuje tip upita PRIJE nego
-# se tiket proslijedi specijaliziranim agentima. Procjena ne mora biti
-# tocna - strategije koje gledaju "skill" agenta odlucuju na temelju ove
-# procjene, ne stvarnog tipa. Stvarni tip i dalje odreduje koliko obrada
-# stvarno traje (vidi faktor u Scheduler.obradi_ticket).
 
 PROXY_KLASIFIKACIJA_TRAJANJE = 0.2  # fiksno trajanje jedne klasifikacije
+#mogo bih dodat slajder za ovo umjesto da bude hardkodano?
 
 
 class ProxyAgent:
     def __init__(self, tocnost: float = 0.8, moguci_tipovi: list = None, seed: int = None, kapacitet: int = 5):
         self.tocnost = tocnost
         self.moguci_tipovi = moguci_tipovi or ["tehnicki", "naplata", "opci"]
-        self.rng = random.Random(seed)  # zaseban RNG - ne remeti generiranje tiketa
+        self.rng = random.Random(seed) 
         self.tocne_klasifikacije = 0
         self.pogresne_klasifikacije = 0
         self.kapacitet = kapacitet

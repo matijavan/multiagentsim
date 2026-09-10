@@ -1,8 +1,3 @@
-"""
-Orkestrira jedno pokretanje simulacije (simpy env + scheduler + generator)
-i vraca obican dict s rezultatima - bez ispisa, bez ovisnosti o API sloju.
-"""
-
 import random
 import simpy
 
@@ -38,9 +33,6 @@ def run_simulation(
     entry = STRATEGY_REGISTRY[strategy_key]
     strategija = entry["factory"]()  # svjeza instanca (round robin ima interno stanje)
 
-    # Distinct tipovi tiketa = distinct nazivi/skillovi trenutno konfiguriranih
-    # agenata (redoslijed prvog pojavljivanja), s tezinama iz tip_weights
-    # (nedostajuci unosi padaju na 1.0 - ravnomjerna tezina).
     tipovi = list(dict.fromkeys(a.name for a in agents))
     tezine = tip_weights or {}
     tip_weights_list = [tezine.get(t, 1.0) for t in tipovi]
@@ -50,8 +42,7 @@ def run_simulation(
     env = simpy.Environment()
     agenti = build_agenti(agents)
     metrike = Metrike()
-    # Zaseban seed za proxy RNG - generiranje tiketa ostaje identicno bez
-    # obzira na tocnost proxyja, pa je usporedba strategija fer.
+    
     proxy = ProxyAgent(tocnost=tocnost_proxyja, moguci_tipovi=tipovi, seed=seed + 1000, kapacitet=proxy_kapacitet)
     scheduler = Scheduler(env, agenti, strategija, metrike, proxy, odbacuj_pune=odbacuj_pune, faktor_penala=faktor_penala)
 
